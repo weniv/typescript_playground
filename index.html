@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TypeScript Playground</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/typescript/5.3.3/typescript.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #1e1e1e;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+            height: calc(100vh - 40px);
+        }
+        .editor-container {
+            flex: 1;
+            border: 1px solid #333;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .output-container {
+            width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        #output {
+            flex: 1;
+            background-color: #2d2d2d;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            overflow-y: auto;
+        }
+        button {
+            background-color: #0078d4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #106ebe;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="editor-container" id="editor"></div>
+        <div class="output-container">
+            <button onclick="runCode()">Run Code (Ctrl+Enter)</button>
+            <div id="output"></div>
+        </div>
+    </div>
+
+    <script>
+        require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' } });
+        require(['vs/editor/editor.main'], function () {
+            window.editor = monaco.editor.create(document.getElementById('editor'), {
+                value: `// TypeScript Playground
+const message: string = "Hello, TypeScript!";
+console.log(message);
+
+// Example: Interface
+interface Person {
+    name: string;
+    age: number;
+}
+
+const person: Person = {
+    name: "John",
+    age: 30
+};
+
+console.log(person);`,
+                language: 'typescript',
+                theme: 'vs-dark',
+                fontSize: 14,
+                minimap: { enabled: false },
+                automaticLayout: true
+            });
+
+            // Ctrl+Enter to run code
+            editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, runCode);
+        });
+
+        let originalConsoleLog = console.log;
+        let originalConsoleError = console.error;
+
+        function runCode() {
+            const outputDiv = document.getElementById('output');
+            outputDiv.innerHTML = '';
+            
+            // Override console.log and console.error
+            let output = [];
+            console.log = (...args) => {
+                output.push(args.map(arg => 
+                    typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+                ).join(' '));
+                outputDiv.innerHTML = output.join('\n');
+            };
+            console.error = (...args) => {
+                output.push(`Error: ${args.join(' ')}`);
+                outputDiv.innerHTML = output.join('\n');
+            };
+
+            try {
+                const code = editor.getValue();
+                // Compile TypeScript to JavaScript
+                const result = ts.transpileModule(code, {
+                    compilerOptions: {
+                        target: ts.ScriptTarget.ES2015,
+                        module: ts.ModuleKind.None
+                    }
+                });
+
+                // Execute the compiled JavaScript
+                eval(result.outputText);
+            } catch (error) {
+                console.error(error.message);
+            } finally {
+                // Restore original console methods
+                console.log = originalConsoleLog;
+                console.error = originalConsoleError;
+            }
+        }
+    </script>
+</body>
+</html>
