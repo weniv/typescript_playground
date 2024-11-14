@@ -1,9 +1,40 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TypeScript Playground</title>
+
+    <!-- 기본 메타 태그 -->
+    <title>Weniv type | 위니브 타입스크립트</title>
+    <meta name="description" content="타입스크립트를 바로 실습해보세요.">
+
+    <!-- Open Graph 메타 태그 -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Weniv type | 위니브 타입스크립트">
+    <meta property="og:description" content="손쉽게 타입스크립트를 배워보세요.">
+    <meta property="og:image" content="https://type.weniv.co.kr/og-image.png">
+    <meta property="og:url" content="https://type.weniv.co.kr">
+    <meta property="og:site_name" content="Weniv Type">
+    
+    <!-- Twitter 카드 -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="위니브 타입 - 손쉬운 타입스크립트 학습 툴">
+    <meta name="twitter:description" content="손쉽게 타입스크립트를 배워보세요.">
+    <meta name="twitter:image" content="https://type.weniv.co.kr/og-image.png">
+    
+    <!-- 추가 메타 태그 -->
+    <meta name="keywords" content="위니브, weniv, typescript, JavaScript">
+    <meta name="author" content="Weniv">
+    <meta name="robots" content="index, follow">
+    
+    <!-- 캐노니컬 URL -->
+    <link rel="canonical" href="https://type.weniv.co.kr">
+    
+    <!-- 파비콘 -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+    <script src="./asset/js/analytics.js"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/typescript/5.3.3/typescript.min.js"></script>
     <style>
@@ -20,6 +51,7 @@
             height: calc(100vh - 40px);
         }
         .editor-container {
+            padding-top: 10px;
             flex: 1;
             border: 1px solid #333;
             border-radius: 4px;
@@ -33,13 +65,20 @@
         }
         #output {
             flex: 1;
+            line-height: 1.5;
             background-color: #2d2d2d;
             border: 1px solid #333;
             border-radius: 4px;
-            padding: 10px;
+            padding: 15px;
             font-family: monospace;
             white-space: pre-wrap;
             overflow-y: auto;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: space-between;
         }
         button {
             background-color: #0078d4;
@@ -53,20 +92,222 @@
         button:hover {
             background-color: #106ebe;
         }
+        .font-size-controls {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+        .font-size-controls button {
+            padding: 2.5px 5px;
+        }
+
+        .font-size-display {
+            color: #fff;
+        }
+        .button-group-play {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: center;
+        }
+
+        /* 다크모드 */
+        body.light-theme {
+            background-color: #ffffff;
+            color: #000000;
+        }
+        .light-theme .output-container #output {
+            background-color: #f5f5f5;
+            border-color: #ddd;
+        }
+        .light-theme .font-size-display {
+            color: #000;
+        }
+
+        /* 아이콘 */
+        button svg {
+            width: 16px;
+            height: 16px;
+            vertical-align: middle;
+        }
+
+        /* 아이콘만 있는 버튼을 위한 스타일 */
+        button.icon-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-switch {
+            position: relative;
+            width: 48px;
+            height: 24px;
+            background-color: #4a5568;
+            border-radius: 12px;
+            padding: 2px;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.3s;
+        }
+
+        .theme-switch::after {
+            content: '';
+            position: absolute;
+            left: 2px;
+            top: 2px;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        body.light-theme .theme-switch {
+            background-color: #3b82f6;
+        }
+
+        body.light-theme .theme-switch::after {
+            transform: translateX(24px);
+        }
+
+        .home-link {
+            width: 36px;
+            height: 36px;
+            background-color: #2e6ff2;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .home-link:hover {
+            transform: scale(1.1);
+        }
+
+        .home-link img {
+            width: 24px;
+            height: 24px;
+        }
+        .button-group-home {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .button-run {
+            width: 100%;
+        }
+
     </style>
 </head>
 <body>
     <div class="container">
         <div class="editor-container" id="editor"></div>
         <div class="output-container">
-            <button onclick="runCode()">Run Code (Ctrl+Enter)</button>
+            <div class="button-group-play">
+                <button class="button-run" onclick="runCode()">Run Code (Ctrl+Enter)</button>
+                <div class="button-group-home">
+                    <button class="theme-switch" onclick="toggleTheme()" aria-label="Toggle theme"></button>
+                    <a href="https://weniv.co.kr/" class="home-link">
+                        <img src="asset/img/logo.svg" alt="홈으로 가기">
+                    </a>
+                </div>
+            </div>
+            <div class="button-group">
+                <div class="font-size-controls">
+                    <button onclick="changeFontSize('editor', 1)">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                        </svg>                                                 
+                    </button>
+                    <button onclick="changeFontSize('editor', -1)">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14" />
+                        </svg>
+                    </button>
+                    <span class="font-size-display" id="editorFontSize">14px</span>
+                </div>
+                <div class="font-size-controls">
+                    <button onclick="changeFontSize('output', 1)">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                        </svg>    
+                    </button>
+                    <button onclick="changeFontSize('output', -1)">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14" />
+                        </svg>
+                    </button>
+                    <span class="font-size-display" id="outputFontSize">14px</span>
+                </div>
+            </div>
             <div id="output"></div>
         </div>
     </div>
 
     <script>
+        let editorFontSize = 14;
+        let outputFontSize = 14;
+
+        function changeFontSize(target, delta) {
+            if (target === 'editor') {
+                editorFontSize = Math.max(8, Math.min(30, editorFontSize + delta));
+                document.getElementById('editorFontSize').textContent = `${editorFontSize}px`;
+                if (window.editor) {
+                    window.editor.updateOptions({ fontSize: editorFontSize });
+                }
+            } else {
+                outputFontSize = Math.max(8, Math.min(30, outputFontSize + delta));
+                document.getElementById('outputFontSize').textContent = `${outputFontSize}px`;
+                document.getElementById('output').style.fontSize = `${outputFontSize}px`;
+            }
+        }
+
         require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' } });
         require(['vs/editor/editor.main'], function () {
+            // 스니펫 정의
+            monaco.languages.registerCompletionItemProvider('typescript', {
+                provideCompletionItems: function(model, position) {
+                    return {
+                        suggestions: [
+                            {
+                                label: 'log',
+                                kind: monaco.languages.CompletionItemKind.Snippet,
+                                insertText: 'console.log(${1:value});',
+                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                documentation: 'Console log statement',
+                                detail: 'console.log(...)'
+                            },
+                            {
+                                label: 'for',
+                                kind: monaco.languages.CompletionItemKind.Snippet,
+                                insertText: 'for (let ${1:i} = 0; ${1:i} < ${2:array}.length; ${1:i}++) {\n\t${3}\n}',
+                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                documentation: 'For loop',
+                                detail: 'for loop'
+                            },
+                            {
+                                label: 'if',
+                                kind: monaco.languages.CompletionItemKind.Snippet,
+                                insertText: 'if (${1:condition}) {\n\t${2}\n}',
+                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                documentation: 'If statement',
+                                detail: 'if statement'
+                            },
+                            {
+                                label: 'async',
+                                kind: monaco.languages.CompletionItemKind.Snippet,
+                                insertText: 'async function ${1:name}(${2:params}) {\n\t${3}\n}',
+                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                                documentation: 'Async function',
+                                detail: 'async function'
+                            }
+                        ]
+                    };
+                }
+            });
             window.editor = monaco.editor.create(document.getElementById('editor'), {
                 value: `// TypeScript Playground
 const message: string = "Hello, TypeScript!";
@@ -86,9 +327,15 @@ const person: Person = {
 console.log(person);`,
                 language: 'typescript',
                 theme: 'vs-dark',
-                fontSize: 14,
-                minimap: { enabled: false },
-                automaticLayout: true
+                fontSize: editorFontSize,
+                minimap: { enabled: true },
+                automaticLayout: true,
+                scrollBeyondLastLine: false,
+                scrollbar: {
+                    vertical: 'auto',
+                    horizontal: 'auto'
+                },
+                overviewRulerLanes: 0
             });
 
             // Ctrl+Enter to run code
@@ -133,6 +380,17 @@ console.log(person);`,
                 // Restore original console methods
                 console.log = originalConsoleLog;
                 console.error = originalConsoleError;
+            }
+        }
+        function toggleTheme() {
+            const body = document.body;
+            const isLightTheme = body.classList.toggle('light-theme');
+            
+            // Monaco 에디터 테마 변경
+            if (window.editor) {
+                window.editor.updateOptions({
+                    theme: isLightTheme ? 'vs' : 'vs-dark'
+                });
             }
         }
     </script>
