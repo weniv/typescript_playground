@@ -413,16 +413,8 @@ console.log(person);`,
 
         if (userAgent.includes("Mac OS X")) {
             runBtn.textContent = "Run Code (Cmd+Enter)";
-            editor.addCommand(
-            monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
-            runCode
-            );
         } else {
             runBtn.textContent = "Run Code (Ctrl+Enter)";
-            editor.addCommand(
-            monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
-            runCode
-            );
         }
     </script>
 </body>
