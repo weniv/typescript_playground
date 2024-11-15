@@ -267,6 +267,18 @@
 
         require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' } });
         require(['vs/editor/editor.main'], function () {
+            // TypeScript 컴파일러 옵션 설정
+            monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+                    strict: true,
+                    strictNullChecks: true,
+                    noImplicitAny: true,
+                    target: monaco.languages.typescript.ScriptTarget.ESNext,
+                    allowNonTsExtensions: true,
+                    moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+                    module: monaco.languages.typescript.ModuleKind.CommonJS,
+                    noEmit: true
+                });
+
             // 스니펫 정의
             monaco.languages.registerCompletionItemProvider('typescript', {
                 provideCompletionItems: function(model, position) {
@@ -308,6 +320,7 @@
                     };
                 }
             });
+            
             window.editor = monaco.editor.create(document.getElementById('editor'), {
                 value: `// TypeScript Playground
 const message: string = "Hello, TypeScript!";
@@ -338,6 +351,7 @@ console.log(person);`,
                 overviewRulerLanes: 0
             });
 
+            
             // Ctrl+Enter to run code
             editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, runCode);
         });
