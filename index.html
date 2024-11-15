@@ -407,6 +407,15 @@ console.log(person);`,
                 });
             }
         }
+        // UserAgent에 따라 단축키 표시 변경
+        const runBtn = document.querySelector(".button-run");
+        const userAgent = navigator.userAgent;
+
+        if (userAgent.includes("Mac OS X")) {
+            runBtn.textContent = "Run Code (Cmd+Enter)";
+        } else {
+            runBtn.textContent = "Run Code (Ctrl+Enter)";
+        }
     </script>
 </body>
 </html>
