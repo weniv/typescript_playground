@@ -473,6 +473,39 @@ console.log(person);`,
         } else {
             runBtn.textContent = "Run Code (Ctrl+Enter)";
         }
+
+        // 파일 저장 함수
+        function saveToFile(content, filename) {
+            const blob = new Blob([content], { type: 'text/typescript' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            
+            link.href = url;
+            link.download = filename;
+            
+            // 파일 다운로드를 위한 가상 클릭
+            document.body.appendChild(link);
+            link.click();
+            
+            // 클린업
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        }
+
+        // 키보드 이벤트 리스너
+        document.addEventListener('keydown', function(e) {
+            // Ctrl + S (Windows) 또는 Command + S (Mac)
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault(); // 브라우저 기본 저장 동작 방지
+                
+                // 에디터의 현재 내용 가져오기
+                const editorContent = editor.getValue(); // Monaco Editor 사용 시
+                // const editorContent = document.querySelector('#editor').value; // 일반 textarea 사용 시
+                
+                // weniv.ts 파일로 저장
+                saveToFile(editorContent, 'weniv.ts');
+            }
+        });
     </script>
 </body>
 </html>
